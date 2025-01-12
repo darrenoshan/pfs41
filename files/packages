@@ -1,0 +1,69 @@
+
+SRV_BASE[0]="aria2 bc bash-color-prompt bash-completion bind-utils bwm-ng chrony cronie cryptsetup curl fdupes firewalld ftp GeoIP git htop hping3 iftop iotop iputils"
+SRV_BASE[1]="jcal jdupes jq lshw lsof mtr mmv netstat-nat net-tools NetworkManager NetworkManager-tui ngrep nload nmap nmap-ncat openssl p7zip p7zip-plugins pip plocate"
+SRV_BASE[2]="policycoreutils-python-utils procps procps-ng psmisc pwgen python3-devel python3-pip qemu-img qrencode setroubleshoot-server screen sshfs sshuttle sysstat"
+SRV_BASE[3]="tcpdump telnet tmux traceroute unar unrar unzip util-linux vim wget whois wireguard-tools wireshark-cli"
+
+SRV_EXTRA[0]="acpid axel chkrootkit clang cmake conntrack-tools dialog dkms dnsperf dnstop figlet fzf gcc golang info inxi iperf iptraf-ng kernel-devel kernel-headers"
+SRV_EXTRA[1]="lftp lolcat lynx macchanger make mc nethogs ntpcheck ntpsec rkhunter toilet vim-ansible vim-enhanced vnstat whatmask xml2 yamllint zsh"
+
+ADMIN_TOOLS[0]="mysql mycli"
+DOCKER[0]="moby-engine sen podman podman-compose podman-tui"
+DOCKER[1]="buildah skopeo toolbox cri-tools lxc lxc-templates colin openscap-containers"
+DOCKER_GRP="container-management"
+KUBER[0]="kubernetes-client helm "
+
+DESKTOPS_LIGHT[0]="xfce-apps xfce-desktop xfce-extra-plugins xfce-media xfce-office"
+DESKTOPS_LIGHT[2]="mate-desktop mate-applications compiz"
+DESKTOPS_LIGHT[3]="gnome-desktop"
+DESKTOPS_LIGHT[4]="enlightenment-desktop"
+DESKTOPS_LIGHT[6]="cinnamon-desktop"
+
+DESKTOPS_LIGHT_EXTRA[0]="budgie-desktop budgie-desktop-apps"
+DESKTOPS_LIGHT_EXTRA[1]="cosmic-desktop cosmic-desktop-apps"
+DESKTOPS_LIGHT_EXTRA[2]="i3 i3-extended window-managers swaywm swaywm-extended " 
+DESKTOPS_LIGHT_EXTRA[3]="kde-apps kde-desktop kde-education kde-media kde-mobile kde-mobile-apps kde-office kde-pim kde-software-development kde-spin-initial-setup kf6-software-development"
+DESKTOPS_LIGHT_EXTRA[4]="lxde-apps lxde-desktop lxde-media lxde-office lxqt-apps lxqt-desktop lxqt-l10n lxqt-media lxqt-office"
+
+DBEAVER_URL="https://dbeaver.io/files/dbeaver-ce-latest-stable.x86_64.rpm"
+
+
+GUI_BASE[0]="nautilus file-roller-nautilus gnome-terminal-nautilus tilix-nautilus chromium codium cloud-init dconf dconf-editor engrampa evince fedora-workstation-repositories filezilla firefox geany gedit google-chrome-stable gparted ghostscript"
+GUI_BASE[1]="gnome-extensions-app gnome-shell-extension-appindicator gnome-shell-extension-apps-menu gnome-shell-extension-dash-to-dock gnome-shell-extension-dash-to-panel gnome-shell-extension-just-perfection "
+GUI_BASE[2]="gnome-terminal gnome-tweaks tilix mate-terminal tigervnc tor torbrowser-launcher "
+GUI_BASE[3]="minder leafpad nomacs openvpn pdfmod putty qbittorrent remmina remmina-plugins-rdp telegram-desktop virt-manager virt-manager-common "
+GUI_BASE[4]="NetworkManager-config-connectivity-fedora NetworkManager-dispatcher-routing-rules NetworkManager-fortisslvpn NetworkManager-fortisslvpn-gnome "
+GUI_BASE[5]="NetworkManager-l2tp NetworkManager-l2tp-gnome NetworkManager-openconnect NetworkManager-openconnect-gnome NetworkManager-openvpn NetworkManager-openvpn-gnome"
+GUI_BASE[6]="NetworkManager-ovs NetworkManager-ppp NetworkManager-pptp NetworkManager-pptp-gnome NetworkManager-ssh NetworkManager-ssh-gnome NetworkManager-sstp"
+GUI_BASE[7]="NetworkManager-sstp-gnome NetworkManager-tui NetworkManager-wifi NetworkManager-wwan network-manager-applet nm-connection-editor"
+GUI_BASE[8]="wine wine-common wine-mono winetricks wireshark xed xfce4-taskmanager xfce4-terminal xreader youtube-dl "
+GUI_BASE[9]="adwaita-icon-theme la-capitaine-icon-theme paper-icon-theme luv-icon-theme We10X-icon-theme flatseal clutter kasts"
+GUI_BASE[10]="overpass-fonts overpass-mono-fonts vazirmatn-fonts vazirmatn-vf-fonts liberation-fonts liberation-fonts-common"
+
+GUI_EXTRA[0]="akmod-nvidia apostrophe blackbox-terminal brightnessctl dos2unix drawing feh gimp i3 i3lock i3status icecat"
+GUI_EXTRA[1]="neofetch persepolis remmina-plugins-* terminator xbacklight xournal"
+GUI_EXTRA[2]="papirus-icon-theme papirus-icon-theme-dark papirus-icon-theme-light numix-icon-theme numix-icon-theme-circle numix-icon-theme-square"
+GUI_EXTRA[3]="xscreensaver xscreensaver-extras"
+
+MMEDIA_BASE[0]="ffmpeg HandBrake-gui soundconverter cozy celluloid libglvnd-glx libglvnd-opengl audacious audacious-plugins-freeworld* "
+MMEDIA_BASE[1]="vlc vlc-plugin-crystalhd vlc-plugins-base vlc-plugin-ffmpeg vlc-plugin-pipewire"
+
+MMEDIA_EXTRA[0]="intel-media-driver libva-nvidia-driver gstreamer1-plugin-openh264 gstreamer1-libav gstreamer1-plugins* lame*"
+MMEDIA_EXTRA[1]="simplescreenrecorder easytag openshot mplayer sound-juicer rhythmbox gaupol " 
+
+MMEDIA_EXCLUDES=" --exclude=gstreamer1-plugins-bad-free-devel --exclude=lame-devel "
+MMEDIA_IGNORE="pulseaudio pavucontrol pulseaudio pulseaudio-utils vlc-plugin-pulseaudio "
+
+MMEDIA_OLD="pipewire pipewire-alsa pipewire-pulseaudio pipewire-gstreamer pipewire-libs pipewire-utils "
+
+# GROUPS
+GUI_GRP_BASE[0]="vlc libreoffice"
+GUI_GRP_EXTRA[0]="mate-applications budgie-desktop budgie-desktop-apps cosmic-desktop cosmic-desktop-apps editors python-classroom system-tools sound-and-video window-managers"
+
+REMOVE[0]="dnfdragora mint-y-theme mint-y-icons mint-x-icons"
+
+NVIDIA[0]="kernel-devel kernel-headers gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig "
+
+
+VIRT_BASE="distrobox virt-manager libvirt-client virt-install bridge-utils"
+VIRT_GRP="virtualization"

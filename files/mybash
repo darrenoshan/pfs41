@@ -1,0 +1,35 @@
+
+export SYSTEMD_PAGER=
+export HISTCONTROL=ignoreboth
+export HISTTIMEFORMAT="%Y/%m/%d %H:%M:%S "
+export VISUAL=/usr/bin/vi
+export EDITOR="$VISUAL"
+export VAGRANT_DEFAULT_PROVIDER=libvirt
+shopt -s histappend
+
+PS1="\[\e[0;1m\]\u\[\e[0m\]@\[\e[0;1;38;5;160m\]\H\[\e[0m\][\[\e[0;1m\]\W\[\e[0m\]]\[\e[0m\]:\[\e[0m\](\[\e[0;1m\]$?\[\e[0m\])\[\e[0m\]\$ \[\e[0m\]"
+PS1="\[\e[38;5;160;1m\]\w\[\e[0m\] ➜ $ "
+export PS1="\[$(tput setaf 33)\]\u\[$(tput setaf 69)\]@\[$(tput setaf 105)\]\h \[$(tput setaf 141)\]\w \[$(tput sgr0)\] ➜ $ "
+
+alias wget="wget --report-speed=bits "
+alias mydnf="dnf update --best --allowerasing -y --refresh "
+alias mylogs1="journalctl --since \"10 min ago\""
+alias mylogs2="journalctl --since \"1 hour ago\""
+alias dig="dig +short "
+alias ll="ls -l --color=no"
+alias lll="ls -ltrh --color=no"
+alias llll="ls -ltrha --color=no"
+alias lsblk="lsblk -f "
+alias date_dir="date +%Y_%m_%d_%H_%M_%S "
+alias jdate_dir="jdate +%Y_%m_%d_%H_%M_%S "
+alias grep="grep --color=never "
+alias pwgen="pwgen -sBnv1 40 | tee -a ~/PASSWORDS"
+alias tcpdump_file="tcpdump -nnnnvvvvvvv -s 65535 -w dump`date +%Y_%m_%d_%H_%M_%S`.pacp"
+alias s="sudo su"
+alias ping="ping -i 0.2 -W 0.2 -O -U "
+alias aria2c="aria2c --file-allocation=none "
+alias ipadd="ip -brief address"
+alias ww="~/.scripts/set.bg.pic.sh &> /dev/null"
+
+rm -rf ~/.cache/mozilla/ ~/.mozilla/
+
