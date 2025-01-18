@@ -380,59 +380,35 @@ netadmin_tools(){
 vm_virtualization(){
   
   if [ "$VIRT" -eq "1" ] ; then
+
     dnf_pkg_func "$VIRT_BASE"
     dnf_grp_func "$VIRT_GRP"
+
     if [ "`grep -icw 'user = "root"' /etc/libvirt/qemu.conf`" -lt "0" ];then
-        sudo echo -e "user = \"root\"\ngroup = \"root\"" >> /etc/libvirt/qemu.conf
+        sudo echo -e 'user = "root"' >> /etc/libvirt/qemu.conf
+        sudo echo -e 'group = "root"' >> /etc/libvirt/qemu.conf
     fi
+
     if [ "$GUI" -eq "1" ] ; then
-
-      NET1="<network>
-          <name>Isolate</name>
-          <uuid>91803dc9-d50d-4902-be1f-146182527e8b</uuid>
-          <bridge name='virbr1' stp='on' delay='0'/>
-          <mac address='52:54:00:65:81:85'/>
-          <domain name='Isolate'/>
-          <ip address='10.24.1.2' netmask='255.255.255.0'>
-          </ip>
-          </network>
-          "
-      NET2="<network>
-          <name>NAT</name>
-          <uuid>163b7123-0f09-43b9-8c83-6a15f0052588</uuid>
-          <forward mode='nat'>
-          <nat>
-          <port start='1024' end='65535'/>
-          </nat>
-          </forward>
-          <bridge name='virbr0' stp='on' delay='0'/>
-          <mac address='52:54:00:4e:9d:8e'/>
-          <ip address='192.168.124.1' netmask='255.255.255.0'>
-          <dhcp>
-          <range start='192.168.124.2' end='192.168.124.254'/>
-          </dhcp>
-          </ip>
-          </network>
-          "
-
       NETS=`sudo virsh net-list`
-
-      if [ "`echo "$NETS" | grep -ic Isolate`" -lt "1" ] ; then
-          echo "$NET1"  | sed 's/^[ \t]*//' > "$LOGDIR/NET1.xml"
+      if [ -f ./files/virt-net-default-isolate.xml ] ; then
+        if [ "`echo "$NETS" | grep -ic Default-Isolate`" -lt "1" ] ; then
           sudo virsh net-define --file "$LOGDIR/NET1.xml"
-          sudo virsh net-autostart --network Isolate
-          sudo virsh net-start --network Isolate
-      elif [ "`echo "$NETS" | grep -ic NAT`" -lt "1" ] ; then
-          echo "$NET2"  | sed 's/^[ \t]*//' > "$LOGDIR/NET2.xml"
-          sudo virsh net-define --file "$LOGDIR/NET2.xml"
-          sudo virsh net-autostart --network NAT
-          sudo virsh net-start --network NAT
+          sudo virsh net-autostart --network Default-Isolate
+          sudo virsh net-start --network Default-Isolate
+        fi
+      fi
+      if [ -f ./files/virt-net-default-nat.xml ] ; then
+        if [ "`echo "$NETS" | grep -ic Default-NAT`" -lt "1" ] ; then
+          sudo virsh net-define --file ./files/virt-net-default-nat.xml
+          sudo virsh net-autostart --network Default-NAT
+          sudo virsh net-start --network Default-NAT
+        fi
       fi
 
-      sudo systemctl enable libvirtd 
-      sudo systemctl restart libvirtd
-
     fi
+    sudo systemctl enable libvirtd 
+    sudo systemctl restart libvirtd
   fi
   }
 

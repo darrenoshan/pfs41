@@ -1,0 +1,6 @@
+<network>
+<name>Default-Isolate</name>
+<bridge name='virbr11' stp='on' delay='0'/>
+<domain name='Isolate'/>
+<ip address='10.24.1.2' netmask='255.255.255.0'></ip>
+</network>
