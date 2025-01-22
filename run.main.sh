@@ -340,7 +340,7 @@ system_admin_tools(){
       sudo echo '{"psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Names}}"}' > /home/$THEUSER/.docker/config.json
       sudo kubectl completion bash > /etc/bash_completion.d/kubectl 
       sudo mkdir -p "/home/$THEUSER/.kube/"
-      sudo touch "/home/$THEUSER/.kube/conf"
+      sudo touch "/home/$THEUSER/.kube/config"
     fi
 
     # configuring docker kuber for root user
