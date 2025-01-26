@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 #  PS4='$LINENO: '
 #  set -x
-
 #--------------- init vars
   RUNCMD=`realpath $0`
   RUNDIR=`dirname $RUNCMD`
@@ -12,11 +11,13 @@
   ERRFILE="$LOGDIR/$RUNTIME.err"
   mkdir -p "$LOGDIR"
   touch "$LOGFILE"
+  exec > >(tee -a "$LOGFILE") 2>&1
 #--------------- loading general funcs
   if [ -f "$RUNDIR/files/my.general.functions.sh" ] ; then
     source "$RUNDIR/files/my.general.functions.sh"
   fi
 #--------------- script vars
+ AGREE=N
  THEUSER=""
  EXTRA=0
  SELINUX=0
@@ -30,15 +31,15 @@
  PROXY=0
  HASDNF4=0
  HASDNF5=0
+ DESKENV=0
 
-#--------------- checking argument functions
+#--------------- usage and running
 usage() {
-     echo
      echo " Usage: $0 -u <username> [-i] [-g] [-h] [-d] [-m] [-a] [-v] [-s] [-x] [-p]"
-     echo "  -u <username>  Specify the username (required)."
+     echo "  -u <username>  Specify the username (required) , IF NOT GUI could be skipped. "
      echo "  -i             Install useful packages, if gui is set graphical if not only cmd. "
      echo "  -g             Install GUI Apps for Workstation (optional)."
-     echo "  -h             Update Hardware Framework (optional)."
+     echo "  -w             Update Hardware Framework (optional)."
      echo "  -d             Perform a full software update (optional)."
      echo "  -m             Install Multimedia Packages (optional)."
      echo "  -a             Install Admin tools, docker, podman, kubectl, mysql-cli,... (optional)."
@@ -47,14 +48,12 @@ usage() {
      echo "  -x             Install extra packages (optional)."
      echo "  -p             Setup Proxy for dnf and docker (optional)."
 
-     echo -e "${BWhite}\nRecommended:"
+     echo -e "\nRecommended:"
      echo -e "For Desktop Version:\n   $0 -u user -idgap"
-     echo -e "${CLEAR}"
-
-     exit 1
+     end
  }
 check_args(){
-  while getopts "u:xshdigmavp" opt; do
+  while getopts "u:igwdmavsxpehWS" opt; do
       case "$opt" in
           u) THEUSER="$OPTARG"
               ;;
@@ -62,7 +61,7 @@ check_args(){
               ;;
           g) GUI=1
               ;;
-          h) HARDWAREUP=1
+          w) HARDWAREUP=1
               ;;
           d) SOFTWAREUP=1
               ;;
@@ -78,66 +77,113 @@ check_args(){
               ;;
           p) PROXY=1
               ;;
-
+          e) DESKENV=1
+              ;;
+          h) usage
+              ;;
+          W) THEUSER="darren";INSTALL=1;GUI=1;DESKENV=1;HARDWAREUP=0;SOFTWAREUP=1;MMEDIA=1;SYSADMIN=1;VIRT=1;SELINUX=1;EXTRA=0;PROXY=1;
+          # for Workstation automating silent
+              ;;
+          S) THEUSER="darren";INSTALL=1;GUI=0;DESKENV=0;HARDWAREUP=0;SOFTWAREUP=1;MMEDIA=0;SYSADMIN=1;VIRT=0;SELINUX=1;EXTRA=0;PROXY=0;
+          # for Server automating silent
+              ;;
           *) usage
               ;;
       esac
   done
-  if [ -z "$THEUSER" ]; then
-      err "error: \"-u username\" is required."
-      usage
+  if [ "$GUI" -eq "1" ]; then
+    if [ -z "$THEUSER" ]; then
+        echo "error: \"-u username\" is required."
+        usage
+    fi
   fi
  }
-# -------------- using functions
+save_run_vars(){
+  echo  "AGREE        $AGREE"
+  echo  "THEUSER      $THEUSER"
+  echo  "EXTRA        $EXTRA"
+  echo  "SELINUX      $SELINUX"
+  echo  "HARDWAREUP   $HARDWAREUP"
+  echo  "SOFTWAREUP   $SOFTWAREUP"
+  echo  "INSTALL      $INSTALL"
+  echo  "GUI          $GUI"
+  echo  "MMEDIA       $MMEDIA"
+  echo  "SYSADMIN     $SYSADMIN"
+  echo  "VIRT         $VIRT"
+  echo  "PROXY        $PROXY"
+  echo  "HASDNF4      $HASDNF4"
+  echo  "HASDNF5      $HASDNF5"
+  echo  "DESKENV      $DESKENV"
+ }
+# -------------- functions
 dnf_pkg_func(){
   if [ "$HASDNF5" -eq "1" ];then
-    sudo dnf install -y --best --skip-unavailable --skip-broken --allowerasing $@
+    dnf install -y --best --skip-unavailable --skip-broken --allowerasing $@
   else
-    sudo dnf install -y --best --allowerasing $@
+    dnf install -y --best --allowerasing $@
   fi
  }
 dnf_grp_func(){
   if [ "$HASDNF5" -eq "1" ];then
-    sudo dnf group install --with-optional -y --skip-unavailable --skip-broken --best --allowerasing $@
+    dnf group install --with-optional -y --skip-unavailable --skip-broken --best --allowerasing $@
   else
-    sudo dnf group install --with-optional -y --best --allowerasing $@
+    dnf group install --with-optional -y --best --allowerasing $@
   fi
  }
 disable_systemdns(){
-    sudo resolvectl dns 
-    sudo systemctl disable systemd-resolved
-    sudo systemctl stop systemd-resolved
-    sudo unlink /etc/resolv.conf 
-    sudo echo -e "[main]\ndns=none" > /etc/NetworkManager/conf.d/90-dns-none.conf
-    sudo echo "options timeout:1 attempts:10 rotate" >  /etc/resolv.conf
-    sudo echo "nameserver 8.8.8.8" >>  /etc/resolv.conf
-    sudo echo "nameserver 4.2.2.4" >> /etc/resolv.conf
-    sudo echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-    sudo echo "nameserver 9.9.9.9" >> /etc/resolv.conf
-    sudo systemctl reload NetworkManager
+    resolvectl dns 
+    systemctl disable systemd-resolved
+    systemctl stop systemd-resolved
+    unlink /etc/resolv.conf 
+    echo -e "[main]\ndns=none" > /etc/NetworkManager/conf.d/90-dns-none.conf
+    echo "options timeout:1 attempts:10 rotate" >  /etc/resolv.conf
+    echo "nameserver 8.8.8.8" >>  /etc/resolv.conf
+    echo "nameserver 4.2.2.4" >> /etc/resolv.conf
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+    echo "nameserver 9.9.9.9" >> /etc/resolv.conf
+    systemctl reload NetworkManager
   }
-# ------------
+eula_agree(){
+  echo -e '   ╔════════════════════════════════════════════════════════════════════════════════════╗'
+  echo -e '   ║   THIS SCRIPT IS PROVIDED "AS IS" AND FOR PERSONAL USE ONLY.                       ║'
+  echo -e '   ║   IT MAY NOT SUIT ALL USE CASES, AND NO WARRANTY OR SUPPORT IS OFFERED.            ║'
+  echo -e '   ║   THIS SCRIPT IS LICENSED UNDER THE MIT LICENSE.                                   ║'
+  echo -e '   ║   FOR MORE DETAILS, REFER TO THE LICENSE FILE IN THE REPOSITORY                    ║'
+  echo -e '   ║   https://raw.githubusercontent.com/darrenoshan/pfs41/refs/heads/main/LICENSE      ║'
+  echo -e '   ║                                                                                    ║'
+  echo -e '   ║   THE SCRIPT IS WITTEN FOR FEDORA LINUX https://fedoraproject.org V41 ONLY         ║'
+  echo -e '   ║   GET THE LATEST COPY OF THE FROM: https://github.com/darrenoshan/pfs41            ║'
+  echo -e '   ╚════════════════════════════════════════════════════════════════════════════════════╝'
+  line_pr
+  read -p "   DO YO AGREE TO RUN THIS SCRIPT WITH THE ABOVE CONDITIONS ? [y/N] " -N1 AGREE
+  echo -e ""
+  line_pr
+  if [ "`echo $AGREE | grep -icw y `" -ne "1" ]; then
+    end 1
+    exit 1
+  fi
+ }
 check_fedora(){
     OS=`cat /etc/os-release 2> /dev/null ;hostnamectl 2> /dev/null`
     if [ `echo "$OS" | grep -ic fedora` -lt 1 ]; then
       err "This script is written to be used for Fedora Linux distribution only."
-      exit 1
+      end 1
     fi
-    HASDNF4=`sudo which dnf 2> /dev/null | grep -ic dnf`
-    HASDNF5=`sudo which dnf5 2> /dev/null | grep -ic dnf5`
+    HASDNF4=`which dnf 2> /dev/null | grep -ic dnf`
+    HASDNF5=`which dnf5 2> /dev/null | grep -ic dnf5`
     let "FEDORAAAA=HASDNF4+HASDNF5"
     if [ "$FEDORAAAA" -lt "1" ] ; then
       err "This script is written to be used for Fedora Linux distribution only."
       err "no dnf found."
-      exit 1
+      end 1
     fi
   }
 configure(){
-  sudo sed 's/^# %wheel/%wheel/' -i /etc/sudoers
+  sed 's/^# %wheel/%wheel/' -i /etc/sudoers
 
   # config dnf
   if [ -f "$RUNDIR/files/dnf.conf" ] ; then 
-      sudo cat "$RUNDIR/files/dnf.conf" > /etc/dnf/dnf.conf
+      cat "$RUNDIR/files/dnf.conf" > /etc/dnf/dnf.conf
   fi
 
   # source packages
@@ -147,11 +193,11 @@ configure(){
 
   # config mybash
   if [ -f "$RUNDIR/files/mybash" ] ; then
-      sudo mkdir -p /root/.bashrc.d/
-      if [ `sudo grep "source /root/.bashrc.d/mybash" -iwc /root/.bashrc 2> /dev/null` -ne "1" ] ;then
-        sudo echo 'source /root/.bashrc.d/mybash' >> /root/.bashrc
+      mkdir -p /root/.bashrc.d/
+      if [ `grep "source /root/.bashrc.d/mybash" -iwc /root/.bashrc 2> /dev/null` -ne "1" ] ;then
+        echo 'source /root/.bashrc.d/mybash' >> /root/.bashrc
       fi
-      sudo cat "$RUNDIR/files/mybash" > /root/.bashrc.d/mybash
+      cat "$RUNDIR/files/mybash" > /root/.bashrc.d/mybash
 
       if [ "$GUI" -eq "1" ] ; then
           mkdir -p /home/$THEUSER/.bashrc.d/
@@ -166,76 +212,76 @@ configure(){
       mkdir -p "/home/$THEUSER/.ssh/"
       cat "$RUNDIR/files/ssh.sample.config" > "/home/$THEUSER/.ssh/ssh.sample.config"
     fi
-      sudo mkdir -p "/root/.ssh/"
-      sudo cat "$RUNDIR/files/ssh.sample.config" > /root/.ssh/ssh.sample.config
-      sudo mkdir -p /root/.ssh
-      sudo touch /root/.ssh/authorized_keys
+      mkdir -p "/root/.ssh/"
+      cat "$RUNDIR/files/ssh.sample.config" > /root/.ssh/ssh.sample.config
+      mkdir -p /root/.ssh
+      touch /root/.ssh/authorized_keys
   fi
 
   # configure network manager 
   if [ "$GUI" -eq "1" ] ; then
     if [ -f "$RUNDIR/files/nm_connectivity.conf" ] ; then
-        sudo cat "$RUNDIR/files/nm_connectivity.conf" > /etc/NetworkManager/conf.d/20-connectivity.conf
+        cat "$RUNDIR/files/nm_connectivity.conf" > /etc/NetworkManager/conf.d/20-connectivity.conf
     fi
   fi
 
   # configure gnome templates
   if [ "$GUI" -eq "1" ] ; then
-    sudo echo 'sample text' > /home/$THEUSER/Templates/new_text.txt
-    sudo echo '#!/usr/bin/env bash' > /home/$THEUSER/Templates/new_bash_script.sh
-    sudo echo '#!/usr/bin/env python3' > /home/$THEUSER/Templates/new_python_script.py
-    sudo chmod +x /home/$THEUSER/Templates/new_python_script.py /home/$THEUSER/Templates/new_bash_script.sh
-    sudo chown "$THEUSER:$THEUSER" -R /home/$THEUSER/
+    echo 'sample text' > /home/$THEUSER/Templates/new_text.txt
+    echo '#!/usr/bin/env bash' > /home/$THEUSER/Templates/new_bash_script.sh
+    echo '#!/usr/bin/env python3' > /home/$THEUSER/Templates/new_python_script.py
+    chmod +x /home/$THEUSER/Templates/new_python_script.py /home/$THEUSER/Templates/new_bash_script.sh
+    chown "$THEUSER:$THEUSER" -R /home/$THEUSER/
   fi
   }
 
 config_repos(){
 
-    enabled_repos=`sudo dnf repolist --enabled`
+    enabled_repos=`dnf repolist --enabled`
 
     # setting up workstation repositories
     if [ "$GUI" -eq "1" ] ; then
 
-      if [ `sudo dnf list install fedora-workstation-repositories | grep -icw fedora-workstation-repositories ` -lt "1" ] ; then
-        sudo dnf install fedora-workstation-repositories -y
+      if [ `dnf list install fedora-workstation-repositories | grep -icw fedora-workstation-repositories ` -lt "1" ] ; then
+        dnf install fedora-workstation-repositories -y
       fi
 
       # setting up google chrome repo
       if [ "`echo "$enabled_repos" | grep -ic google-chrome`" -lt "1" ] ; then
-        sudo dnf config-manager --set-enabled google-chrome     # Fedora40 DNF4
-        sudo dnf config-manager setopt google-chrome.enabled=1  # Fedora41 DNF5 
+        dnf config-manager --set-enabled google-chrome     # Fedora40 DNF4
+        dnf config-manager setopt google-chrome.enabled=1  # Fedora41 DNF5 
       fi
 
       # setting up vscodium
       if [ "`echo "$enabled_repos" | grep -ic vscodium`" -lt "1" ] ; then
         if [ -f "$RUNDIR/files/vscodium.repo" ] ; then
-          sudo rpmkeys --import "https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg"
-          sudo cat "$RUNDIR/files/vscodium.repo" > /etc/yum.repos.d/vscodium.repo
+          rpmkeys --import "https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg"
+          cat "$RUNDIR/files/vscodium.repo" > /etc/yum.repos.d/vscodium.repo
         fi
       fi
     fi
 
     # setting up rpmfusion-free repo
     if [ "`echo "$enabled_repos" | grep -ic rpmfusion-free`" -lt "2" ] ; then
-      sudo dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
+      dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
     fi
     
     # setting up rpmfusion-nonfree repo
     if [ "`echo "$enabled_repos" | grep -ic rpmfusion-nonfree`" -lt "1" ] ; then
-      sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+      dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
     fi
   }
 
 disable_selinux(){
     if [ "$SELINUX" -eq "1" ]; then
-      sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config        
-      sudo setenforce 0
+      sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config        
+      setenforce 0
     fi
    }
 before_install(){
-    GIT=`sudo which git 2> /dev/null | grep -ic git`
-    SCREEN=`sudo which screen 2> /dev/null | grep -ic screen`
-    DELTARPM=`sudo rpm -ql deltarpm | grep -c bin.applydeltarpm`
+    GIT=`which git 2> /dev/null | grep -ic git`
+    SCREEN=`which screen 2> /dev/null | grep -ic screen`
+    DELTARPM=`rpm -ql deltarpm | grep -c bin.applydeltarpm`
     let "CHECK1=GIT+SCREEN+DELTARPM"
     if [ "$CHECK1" -lt "3" ] ; then
         dnf_pkg_func deltarpm git screen
@@ -243,19 +289,19 @@ before_install(){
  }
 system_update(){
     if [ "$SOFTWAREUP" -eq "1" ]; then
-      sudo dnf clean all
-      sudo dnf distro-sync -y
-      sudo dnf update --best --allowerasing -y --refresh
+      dnf clean all
+      dnf distro-sync -y
+      dnf update --best --allowerasing -y --refresh
       if [ "$GUI" -eq "1" ] ; then
-        sudo pip install --upgrade pip
+        pip install --upgrade pip
       fi
     fi
   } 
 hardware_update(){
     if [ "$HARDWAREUP" -eq "1" ]; then
-      sudo fwupdmgr refresh --force
-      sudo fwupdmgr get-updates
-      sudo fwupdmgr update -y
+      fwupdmgr refresh --force
+      fwupdmgr get-updates
+      fwupdmgr update -y
     fi
   }
 install_packages(){
@@ -275,11 +321,23 @@ install_packages(){
         dnf_pkg_func "${GUI_BASE[@]}"
         dnf_grp_func "${GUI_GRP_BASE[@]}"
 
+      # install lightweight desktop environment
+      if [ "$DESKENV" -eq "1" ]; then
+        dnf_grp_func "${DESKTOPS_LIGHT[@]}"
+      fi
+
       # install gui extra packages
       if [ "$EXTRA" -eq "1" ]; then
         dnf_pkg_func "${GUI_EXTRA[@]}"
         dnf_grp_func "${GUI_GRP_EXTRA[@]}"
+
+          # install lightweight desktop environment
+          if [ "$DESKENV" -eq "1" ]; then
+            dnf_grp_func "${DESKTOPS_LIGHT_EXTRA[@]}"
+          fi
+
       fi
+
 
       # install gui multimedia packages
       if [ "$MMEDIA" -eq "1" ]; then
@@ -296,7 +354,7 @@ install_packages(){
 remove_packages(){
   let "CHECKER=INSTALL+SOFTWAREUP+HARDWAREUP+SYSADMIN+VIRT"
   if [ "$CHECKER" -gt "1" ]; then
-    sudo dnf remove "${REMOVE[@]}" -y
+    dnf remove "${REMOVE[@]}" -y
   fi
  }
 
@@ -305,21 +363,21 @@ system_admin_tools(){
     # installing dbeaver-ce
     if [ "$GUI" -eq "1" ] ; then
       if [ "`dnf list --installed dbeaver-ce | grep -ic dbeaver-ce `" -lt "1" ] ; then
-        sudo dnf install -y "$DBEAVER_URL"
+        dnf install -y "$DBEAVER_URL"
       fi
     fi
     dnf_pkg_func ${ADMIN_TOOLS[@]} ${DOCKER[@]} ${KUBER[@]}
     dnf_grp_func $DOCKER_GRP
 
-    sudo mkdir -p /etc/docker /usr/local/lib/docker/cli-plugins 
+    mkdir -p /etc/docker /usr/local/lib/docker/cli-plugins 
 
     # installing docker-compose
     if [ ! -f /usr/local/lib/docker/cli-plugins/docker-compose ] ; then
         # https://github.com/docker/compose/releases/latest
       GH_DP_COMPOSE=$(curl -s "https://api.github.com/repos/docker/compose/releases/latest" | jq -r '.assets[] | "\(.name) \(.browser_download_url)"')
       DLND_URL=$(echo "$GH_DP_COMPOSE" | grep "linux-x86_64 " | awk '{print $2}')
-      sudo curl -sSL "$DLND_URL" -o /usr/local/lib/docker/cli-plugins/docker-compose
-      sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+      curl -sSL "$DLND_URL" -o /usr/local/lib/docker/cli-plugins/docker-compose
+      chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
     fi
 
     # installing docker-buildx
@@ -327,30 +385,30 @@ system_admin_tools(){
         # https://github.com/docker/buildx/releases/latest
       GH_DP_COMPOSE=$(curl -s "https://api.github.com/repos/docker/buildx/releases/latest" | jq -r '.assets[] | "\(.name) \(.browser_download_url)"')
       DLND_URL=$(echo "$GH_DP_COMPOSE" | grep "linux-amd64 " | awk '{print $2}')
-      sudo curl -sSL $DLND_URL -o /usr/local/lib/docker/cli-plugins/docker-buildx
-      sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+      curl -sSL $DLND_URL -o /usr/local/lib/docker/cli-plugins/docker-buildx
+      chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
     fi
 
-    sudo echo -e "{\n\"bip\" : \"192.168.255.1/24\",\n\"data-root\": \"/data/docker-data/\"\n}\n" > /etc/docker/daemon.json
+    echo -e "{\n\"bip\" : \"192.168.255.1/24\",\n\"data-root\": \"/data/docker-data/\"\n}\n" > /etc/docker/daemon.json
 
     # configuring docker kuber for gui user
     if [ "$GUI" -eq "1" ] ; then
-      sudo usermod -a -G docker "$THEUSER"
-      sudo mkdir -p /home/$THEUSER/.docker
-      sudo echo '{"psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Names}}"}' > /home/$THEUSER/.docker/config.json
-      sudo kubectl completion bash > /etc/bash_completion.d/kubectl 
-      sudo mkdir -p "/home/$THEUSER/.kube/"
-      sudo touch "/home/$THEUSER/.kube/config"
+      usermod -a -G docker "$THEUSER"
+      mkdir -p /home/$THEUSER/.docker
+      echo '{"psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Names}}"}' > /home/$THEUSER/.docker/config.json
+      kubectl completion bash > /etc/bash_completion.d/kubectl 
+      mkdir -p "/home/$THEUSER/.kube/"
+      touch "/home/$THEUSER/.kube/config"
     fi
 
     # configuring docker kuber for root user
-    sudo mkdir -p /root/.docker
-    sudo echo '{"psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Names}}"}' > /root/.docker/config.json
-    sudo kubectl completion bash > /etc/bash_completion.d/kubectl 
-    sudo mkdir -p "/root/.kube/"
-    sudo touch "/root/.kube/conf"
-    sudo systemctl enable docker
-    sudo systemctl restart docker
+    mkdir -p /root/.docker
+    echo '{"psFormat": "table {{.ID}}\\t{{.Image}}\\t{{.Status}}\\t{{.Names}}"}' > /root/.docker/config.json
+    kubectl completion bash > /etc/bash_completion.d/kubectl 
+    mkdir -p "/root/.kube/"
+    touch "/root/.kube/conf"
+    systemctl enable docker
+    systemctl restart docker
 
   fi
 
@@ -359,10 +417,11 @@ netadmin_tools(){
 
   if [ "$GUI" -eq "1" ] ; then
     # installing gns3 for gui
-    if [ `sudo which pip 2> /dev/null | grep -ic pip` -lt "1" ] ; then 
-      if [ "`pip list | grep -ci gns3`" -eq "0" ] ; then
-        sudo pip install gns3-gui
-      fi
+    if [ `which pip 2> /dev/null | grep -ic pip` -lt "1" ] ; then 
+      dnf_pkg_func python3-pip
+    fi
+    if [ "`pip list | grep -ci gns3-gui`" -ne "1" ] ; then
+      pip install gns3-gui==2.2.51
     fi
 
     # installing winbox for gui
@@ -370,7 +429,7 @@ netadmin_tools(){
       dnf_pkg_func wine
       git clone https://github.com/darrenoshan/winbox_on_linux.git
       cd winbox_on_linux
-      sudo bash ./install.sh
+      bash ./install.sh
     fi
   fi
   cd "$RUNDIR"
@@ -385,65 +444,62 @@ vm_virtualization(){
     dnf_grp_func "$VIRT_GRP"
 
     if [ "`grep -icw 'user = "root"' /etc/libvirt/qemu.conf`" -lt "0" ];then
-        sudo echo -e 'user = "root"' >> /etc/libvirt/qemu.conf
-        sudo echo -e 'group = "root"' >> /etc/libvirt/qemu.conf
+        echo -e 'user = "root"' >> /etc/libvirt/qemu.conf
+        echo -e 'group = "root"' >> /etc/libvirt/qemu.conf
     fi
 
     if [ "$GUI" -eq "1" ] ; then
-      NETS=`sudo virsh net-list`
+      NETS=`virsh net-list`
       if [ -f ./files/virt-net-default-isolate.xml ] ; then
-        if [ "`echo "$NETS" | grep -ic Default-Isolate`" -lt "1" ] ; then
-          sudo virsh net-define --file "$LOGDIR/NET1.xml"
-          sudo virsh net-autostart --network Default-Isolate
-          sudo virsh net-start --network Default-Isolate
-        fi
-      fi
+      if [ "`echo "$NETS" | grep -ic Default-Isolate`" -lt "1" ] ; then
+          virsh net-define --file "./files/virt-net-default-isolate.xml"
+      fi ; fi
       if [ -f ./files/virt-net-default-nat.xml ] ; then
-        if [ "`echo "$NETS" | grep -ic Default-NAT`" -lt "1" ] ; then
-          sudo virsh net-define --file ./files/virt-net-default-nat.xml
-          sudo virsh net-autostart --network Default-NAT
-          sudo virsh net-start --network Default-NAT
-        fi
-      fi
-
+      if [ "`echo "$NETS" | grep -ic Default-NAT`" -lt "1" ] ; then
+        virsh net-define --file ./files/virt-net-default-nat.xml
+      fi ; fi
+    virsh net-autostart --network Default-Isolate
+    virsh net-start --network Default-Isolate
+    virsh net-autostart --network Default-NAT
+    virsh net-start --network Default-NAT
     fi
-    sudo systemctl enable libvirtd 
-    sudo systemctl restart libvirtd
+    systemctl enable libvirtd 
+    systemctl restart libvirtd
   fi
   }
 
 post_install(){
     if [ "$GUI" -eq "1" ] ; then
-      sudo rm -rf "/home/$THEUSER/.config/autostart/"
-      sudo usermod -a -G wireshark "$THEUSER"
-      sudo rm -rf  /home/$THEUSER/.local/state/wireplumber/
-      sudo chown -R "$THEUSER:$THEUSER" `sudo -i -u $THEUSER printenv HOME`
+      rm -rf "/home/$THEUSER/.config/autostart/"
+      usermod -a -G wireshark "$THEUSER"
+      rm -rf  /home/$THEUSER/.local/state/wireplumber/
+      chown -R "$THEUSER:$THEUSER" `su - $THEUSER -c 'printenv HOME'`
+      timedatectl set-timezone Asia/Tehran
+      # timedatectl set-timezone UTC
     fi
-    sudo git config --global init.defaultBranch main
-    sudo touch /etc/vimrc ; sudo sed -i /etc/vimrc -e "s/set hlsearch/set nohlsearch/g"
-    sudo timedatectl set-timezone Asia/Tehran 
-    sudo timedatectl set-ntp true
-    sudo systemctl daemon-reload
-    SERVICES_ENABLE="NetworkManager firewalld sshd sysstat vnstat vmtoolsd chronyd crond docker"
-    SERVICES_START="NetworkManager firewalld sshd sysstat vnstat vmtoolsd chronyd crond docker"
-    for SRV in $SERVICES_ENABLE ; do sudo systemctl enable --now &> /dev/null  $SRV ; done
-    for SRV in $SERVICES_START  ; do sudo systemctl restart      &> /dev/null  $SRV ; done
-    sudo resolvectl flush-caches 
-    sudo rpm --rebuilddb
+    git config --global init.defaultBranch main
+    touch /etc/vimrc ; sed -i /etc/vimrc -e "s/set hlsearch/set nohlsearch/g"
+    timedatectl set-ntp true
+    systemctl daemon-reload
+
+    SERVICES="NetworkManager firewalld sshd sysstat vnstat vmtoolsd chronyd crond docker"
+    for SRV in $SERVICES  ; do systemctl restart      &> /dev/null  $SRV ; done
+    resolvectl flush-caches 
+    rpm --rebuilddb
  }
 proxy(){
     if [ "$PROXY" -eq "1" ] ; then 
-      sudo echo -e '\nproxy=http://ir.linuxmirrors.ir:8080\n' >> /etc/dnf/dnf.conf
+      echo -e '\nproxy=http://ir.linuxmirrors.ir:8080\n' >> /etc/dnf/dnf.conf
 
-      sudo mkdir -p /etc/systemd/system/docker.service.d
+      mkdir -p /etc/systemd/system/docker.service.d
       echo '
       [Service]
       Environment="HTTP_PROXY=http://ir.linuxmirrors.ir:8080"
       Environment="HTTPS_PROXY=http://ir.linuxmirrors.ir:8080"
       Environment="NO_PROXY=localhost,127.0.0.1,docker-registry.example.com,.corp"
       ' > /etc/systemd/system/docker.service.d/00-proxy.conf
-      # sduo systemctl daemon-reload   DISABLED BECAUSE THE post_install will restart docker anyway
-      # sudo systemctl restart docker  DISABLED BECAUSE THE post_install will restart docker anyway 
+      # systemctl daemon-reload   DISABLED BECAUSE THE post_install will restart docker anyway
+      # systemctl restart docker  DISABLED BECAUSE THE post_install will restart docker anyway 
 
     fi
 
@@ -466,13 +522,21 @@ proxy(){
   post_install
  "
 #
-check_args $@
 main(){
-  for STEP in $MAIN_STEPS ; do
-    log -e " --------> ${BRed} Running : $STEP ${CLEAR}" | tee "$LOGFILE"
-    # ($STEP | tee "$LOGFILE") 3>&1 1>&2 2>&3 | tee "$ERRFILE"
-    $STEP
-  done
-}
-
-main
+  root_run
+  set_tui
+  check_args $@
+  eula_agree
+  save_run_vars >> "$LOGFILE"
+  echo 
+    for STEP in $MAIN_STEPS ; do
+      log " --------> Running : $STEP "
+      echo -ne "${NORMAL}${MY_TUI2}"
+      $STEP
+      echo -ne "${MY_TUI1}"
+    done
+  line_pr
+ }
+#
+main $@
+end 0

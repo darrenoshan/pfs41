@@ -18,12 +18,12 @@ DESKTOPS_LIGHT[2]="mate-desktop mate-applications compiz"
 DESKTOPS_LIGHT[3]="gnome-desktop"
 DESKTOPS_LIGHT[4]="enlightenment-desktop"
 DESKTOPS_LIGHT[6]="cinnamon-desktop"
+DESKTOPS_LIGHT[7]="lxde-apps lxde-desktop lxde-media lxde-office lxqt-apps lxqt-desktop lxqt-l10n lxqt-media lxqt-office"
+DESKTOPS_LIGHT[8]="budgie-desktop budgie-desktop-apps"
+DESKTOPS_LIGHT[9]="cosmic-desktop cosmic-desktop-apps"
 
-DESKTOPS_LIGHT_EXTRA[0]="budgie-desktop budgie-desktop-apps"
-DESKTOPS_LIGHT_EXTRA[1]="cosmic-desktop cosmic-desktop-apps"
-DESKTOPS_LIGHT_EXTRA[2]="i3 i3-extended window-managers swaywm swaywm-extended " 
-DESKTOPS_LIGHT_EXTRA[3]="kde-apps kde-desktop kde-education kde-media kde-mobile kde-mobile-apps kde-office kde-pim kde-software-development kde-spin-initial-setup kf6-software-development"
-DESKTOPS_LIGHT_EXTRA[4]="lxde-apps lxde-desktop lxde-media lxde-office lxqt-apps lxqt-desktop lxqt-l10n lxqt-media lxqt-office"
+DESKTOPS_LIGHT_EXTRA[0]="i3 i3-extended window-managers swaywm swaywm-extended " 
+DESKTOPS_LIGHT_EXTRA[1]="kde-apps kde-desktop kde-education kde-media kde-mobile kde-mobile-apps kde-office kde-pim kde-software-development kde-spin-initial-setup kf6-software-development"
 
 DBEAVER_URL="https://dbeaver.io/files/dbeaver-ce-latest-stable.x86_64.rpm"
 
