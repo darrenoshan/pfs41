@@ -4,13 +4,17 @@ SRV_BASE[1]="jcal jdupes jq lshw lsof mtr mmv netstat-nat net-tools NetworkManag
 SRV_BASE[2]="policycoreutils-python-utils procps procps-ng psmisc pwgen python3-devel python3-pip qemu-img qrencode setroubleshoot-server screen sshfs sshuttle sysstat"
 SRV_BASE[3]="tcpdump telnet tmux traceroute unar unrar unzip util-linux vim wget whois wireguard-tools wireshark-cli"
 
+SRV_BASE_GRP[0]="core standard"
+
+
 SRV_EXTRA[0]="acpid axel chkrootkit clang cmake conntrack-tools dialog dkms dnsperf dnstop figlet fzf gcc golang info inxi iperf iptraf-ng kernel-devel kernel-headers"
 SRV_EXTRA[1]="lftp lolcat lynx macchanger make mc nethogs ntpcheck ntpsec rkhunter toilet vim-ansible vim-enhanced vnstat whatmask xml2 yamllint zsh"
 
 ADMIN_TOOLS[0]="mysql mycli"
 DOCKER[0]="moby-engine sen podman podman-compose podman-tui"
 DOCKER[1]="buildah skopeo toolbox cri-tools lxc lxc-templates colin openscap-containers"
-DOCKER_GRP="container-management"
+
+SYSADMIN_GRP[0]="container-management mysql"
 KUBER[0]="kubernetes-client helm "
 
 DESKTOPS_LIGHT[0]="xfce-apps xfce-desktop xfce-extra-plugins xfce-media xfce-office"
@@ -46,7 +50,7 @@ GUI_EXTRA[2]="papirus-icon-theme papirus-icon-theme-dark papirus-icon-theme-ligh
 GUI_EXTRA[3]="xscreensaver xscreensaver-extras"
 
 MMEDIA_BASE[0]="ffmpeg HandBrake-gui soundconverter cozy celluloid libglvnd-glx libglvnd-opengl audacious audacious-plugins-freeworld* "
-MMEDIA_BASE[1]="vlc vlc-plugin-crystalhd vlc-plugins-base vlc-plugin-ffmpeg vlc-plugin-pipewire"
+MMEDIA_BASE[1]="vlc vlc-plugin-crystalhd vlc-plugins-base vlc-plugin-ffmpeg vlc-plugin-pipewire libavcodec-freeworld "
 
 MMEDIA_EXTRA[0]="intel-media-driver libva-nvidia-driver gstreamer1-plugin-openh264 gstreamer1-libav gstreamer1-plugins* lame*"
 MMEDIA_EXTRA[1]="simplescreenrecorder easytag openshot mplayer sound-juicer rhythmbox gaupol " 
@@ -57,7 +61,7 @@ MMEDIA_IGNORE="pulseaudio pavucontrol pulseaudio pulseaudio-utils vlc-plugin-pul
 MMEDIA_OLD="pipewire pipewire-alsa pipewire-pulseaudio pipewire-gstreamer pipewire-libs pipewire-utils "
 
 # GROUPS
-GUI_GRP_BASE[0]="vlc libreoffice"
+GUI_GRP_BASE[0]="vlc libreoffice multimedia "
 GUI_GRP_EXTRA[0]="mate-applications budgie-desktop budgie-desktop-apps cosmic-desktop cosmic-desktop-apps editors python-classroom system-tools sound-and-video window-managers"
 
 REMOVE[0]="dnfdragora mint-y-theme mint-y-icons mint-x-icons"
@@ -66,4 +70,4 @@ NVIDIA[0]="kernel-devel kernel-headers gcc make dkms acpid libglvnd-glx libglvnd
 
 
 VIRT_BASE="distrobox virt-manager libvirt-client virt-install bridge-utils"
-VIRT_GRP="virtualization"
+VIRT_GRP="virtualization vagrant "

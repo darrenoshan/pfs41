@@ -1,0 +1,128 @@
+[37m[48;5;21m[1m
+[H[2J[3J   ╔════════════════════════════════════════════════════════════════════════════════════╗
+   ║   THIS SCRIPT IS PROVIDED "AS IS" AND FOR PERSONAL USE ONLY.                       ║
+   ║   IT MAY NOT SUIT ALL USE CASES, AND NO WARRANTY OR SUPPORT IS OFFERED.            ║
+   ║   THIS SCRIPT IS LICENSED UNDER THE MIT LICENSE.                                   ║
+   ║   FOR MORE DETAILS, REFER TO THE LICENSE FILE IN THE REPOSITORY                    ║
+   ║   https://raw.githubusercontent.com/darrenoshan/pfs41/refs/heads/main/LICENSE      ║
+   ║                                                                                    ║
+   ║   THE SCRIPT IS WITTEN FOR FEDORA LINUX https://fedoraproject.org V41 ONLY         ║
+   ║   GET THE LATEST COPY OF THE FROM: https://github.com/darrenoshan/pfs41            ║
+   ╚════════════════════════════════════════════════════════════════════════════════════╝
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+   DO YO AGREE TO RUN THIS SCRIPT WITH THE ABOVE CONDITIONS ? [y/N] 
+═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+AGREE        y
+THEUSER      
+EXTRA        0
+SELINUX      0
+HARDWAREUP   0
+SOFTWAREUP   0
+INSTALL      0
+GUI          0
+MMEDIA       1
+SYSADMIN     0
+VIRT         0
+PROXY        0
+HASDNF4      0
+HASDNF5      0
+DESKENV      0
+
+ --- 1403/11/08-07:53:39 ---  :  --------> Running : check_fedora 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : configure 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : proxy 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : disable_selinux 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : config_repos 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : before_install 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : system_update 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : hardware_update 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:39 ---  :  --------> Running : install_packages 
+(B[m[34m[48;5;21m[JUpdating and loading repositories:
+Repositories loaded.
+Package "HandBrake-gui-1.8.2-3.fc41.x86_64" is already installed.
+Package "soundconverter-4.0.5-3.fc41.noarch" is already installed.
+Package "cozy-1.3.0-3.fc41.noarch" is already installed.
+Package "celluloid-0.27-2.fc41.x86_64" is already installed.
+Package "libglvnd-glx-1:1.7.0-5.fc41.x86_64" is already installed.
+Package "libglvnd-glx-1:1.7.0-5.fc41.i686" is already installed.
+Package "libglvnd-opengl-1:1.7.0-5.fc41.x86_64" is already installed.
+Package "audacious-4.4.2-1.fc41.x86_64" is already installed.
+Package "audacious-plugins-freeworld-4.4.2-1.fc41.x86_64" is already installed.
+Package "audacious-plugins-freeworld-aac-4.4.2-1.fc41.x86_64" is already installed.
+Package "vlc-1:3.0.21-15.fc41.x86_64" is already installed.
+Package "vlc-plugin-crystalhd-1:3.0.21-15.fc41.x86_64" is already installed.
+Package "vlc-plugins-base-1:3.0.21-15.fc41.x86_64" is already installed.
+Package "vlc-plugin-ffmpeg-1:3.0.21-15.fc41.x86_64" is already installed.
+Package "vlc-plugin-pipewire-3-4.fc41.x86_64" is already installed.
+
+Nothing to do.
+Missing positional argument "group-spec" for command "install". Add "--help" for more information about the arguments.
+Updating and loading repositories:
+Repositories loaded.
+Package             Arch   Version      Repository          Size
+Removing:
+ ffmpeg-free        x86_64 7.0.2-7.fc41 fedora           2.5 MiB
+Removing dependent packages:
+ libavcodec-free    x86_64 7.0.2-7.fc41 fedora           9.5 MiB
+ libavdevice-free   x86_64 7.0.2-7.fc41 fedora         215.2 KiB
+ libavfilter-free   x86_64 7.0.2-7.fc41 fedora           4.1 MiB
+ libavformat-free   x86_64 7.0.2-7.fc41 fedora           2.6 MiB
+ libavutil-free     x86_64 7.0.2-7.fc41 fedora         950.7 KiB
+ libpostproc-free   x86_64 7.0.2-7.fc41 fedora          89.7 KiB
+ libswresample-free x86_64 7.0.2-7.fc41 fedora         147.4 KiB
+ libswscale-free    x86_64 7.0.2-7.fc41 fedora         587.3 KiB
+Installing:
+ ffmpeg             x86_64 7.0.2-4.fc41 rpmfusion-free   2.5 MiB
+Installing dependencies:
+ ffmpeg-libs        x86_64 7.0.2-4.fc41 rpmfusion-free  21.0 MiB
+ libavdevice        x86_64 7.0.2-4.fc41 rpmfusion-free 162.1 KiB
+Installing weak dependencies:
+ vmaf-models        noarch 3.0.0-2.fc41 fedora           4.9 MiB
+
+Transaction Summary:
+ Installing:         4 packages
+ Removing:           9 packages
+
+Total size of inbound packages is 11 MiB. Need to download 0 B.
+After this operation, 8 MiB extra will be used (install 29 MiB, remove 21 MiB).
+Is this ok [y/N]: [1/1] ffmpeg-0:7.0.2-4.fc41.x86_64      100% |   0.0   B/s |   0.0   B |  00m00s
+>>> Already downloaded
+--------------------------------------------------------------------------------
+[1/1] Total                             100% |   0.0   B/s |   0.0   B |  00m00s
+[1/2] ffmpeg-libs-0:7.0.2-4.fc41.x86_64 100% |   0.0   B/s |   0.0   B |  00m00s
+>>> Already downloaded
+--------------------------------------------------------------------------------
+[2/2] Total                             100% |   0.0   B/s |   0.0   B |  00m00s
+[1/3] libavdevice-0:7.0.2-4.fc41.x86_64 100% |   0.0   B/s |   0.0   B |  00m00s
+>>> Already downloaded
+--------------------------------------------------------------------------------
+[3/3] Total                             100% |   0.0   B/s |   0.0   B |  00m00s
+[1/4] vmaf-models-0:3.0.0-2.fc41.noarch 100% |   0.0   B/s |   0.0   B |  00m00s
+>>> Already downloaded
+--------------------------------------------------------------------------------
+[4/4] Total                             100% |   0.0   B/s |   0.0   B |  00m00s
+Running transaction
+[ 1/15] Verify package files            100% |  40.0   B/s |   4.0   B |  00m00s
+[ 2/15] Prepare transaction             100% |  14.0   B/s |  13.0   B |  00m01s
+[ 3/15] Installing ffmpeg-libs-0:7.0.2- 100% | 157.7 MiB/s |  21.0 MiB |  00m00s
+[ 4/15] Installing libavdevice-0:7.0.2- 100% |  15.9 MiB/s | 162.9 KiB |  00m00s
+[ 5/15] Installing ffmpeg-0:7.0.2-4.fc4 100% | 107.6 MiB/s |   2.5 MiB |  00m00s
+[ 6/15] Installing vmaf-models-0:3.0.0- 100% | 103.1 MiB/s |   4.9 MiB |  00m00s
+[ 7/15] Removing ffmpeg-free-0:7.0.2-7. 100% |   2.3 KiB/s |  35.0   B |  00m00s
+[ 8/15] Removing libavdevice-free-0:7.0 100% | 571.0   B/s |   8.0   B |  00m00s
+[ 9/15] Removing libavfilter-free-0:7.0 100% | 800.0   B/s |   8.0   B |  00m00s
+[10/15] Removing libavformat-free-0:7.0 100% | 888.0   B/s |   8.0   B |  00m00s
+[11/15] Removing libavcodec-free-0:7.0. 100% |  57.0   B/s |   8.0   B |  00m00s
+[12/15] Removing libswresample-free-0:7 100% |   1.1 KiB/s |   7.0   B |  00m00s
+[13/15] Removing libpostproc-free-0:7.0 100% | 888.0   B/s |   8.0   B |  00m00s
+[14/15] Removing libswscale-free-0:7.0. 100% |   2.0 KiB/s |   8.0   B |  00m00s
+[15/15] Removing libavutil-free-0:7.0.2 100% |   9.0   B/s |   8.0   B |  00m01s
+Complete!
+[37m[48;5;21m[1m --- 1403/11/08-07:53:58 ---  :  --------> Running : system_admin_tools 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:58 ---  :  --------> Running : netadmin_tools 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:58 ---  :  --------> Running : vm_virtualization 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:58 ---  :  --------> Running : remove_packages 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m --- 1403/11/08-07:53:58 ---  :  --------> Running : post_install 
+(B[m[34m[48;5;21m[J[37m[48;5;21m[1m═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+./run.main.sh: line 542: -m: command not found
+[J[0m(B[m[J

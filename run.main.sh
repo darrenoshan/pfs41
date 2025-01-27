@@ -310,6 +310,7 @@ install_packages(){
 
     # install srv base packages
       dnf_pkg_func "${SRV_BASE[@]}"
+      dnf_grp_func "${SRV_BASE_GRP[@]}"      
 
     # install srv extra packages
     if [ "$EXTRA" -eq "1" ]; then
@@ -331,23 +332,25 @@ install_packages(){
         dnf_pkg_func "${GUI_EXTRA[@]}"
         dnf_grp_func "${GUI_GRP_EXTRA[@]}"
 
-          # install lightweight desktop environment
+          # install lightweight desktop environment extra
           if [ "$DESKENV" -eq "1" ]; then
             dnf_grp_func "${DESKTOPS_LIGHT_EXTRA[@]}"
           fi
 
       fi
 
-
-      # install gui multimedia packages
-      if [ "$MMEDIA" -eq "1" ]; then
-        dnf_pkg_func "${MMEDIA_BASE[@]}" "$MMEXCLUDES"
-        dnf_grp_func "${MMGRPPKG[@]}"
-          if [ "$EXTRA" -eq "1" ]; then
-            dnf_pkg_func "${MMEDIA_EXTRA[@]}" "$MMEXCLUDES"
-          fi
-      fi
     fi
+
+    # install gui multimedia packages
+    if [ "$MMEDIA" -eq "1" ]; then
+      dnf_pkg_func ${MMEDIA_BASE[@]} $MMEXCLUDES
+      dnf_grp_func ${MMGRPPKG[@]}
+        if [ "$EXTRA" -eq "1" ]; then
+          dnf_pkg_func "${MMEDIA_EXTRA[@]}" "$MMEXCLUDES"
+        fi
+      dnf swap ffmpeg-free ffmpeg --allowerasing -y
+    fi
+
   fi
  }
 
@@ -363,11 +366,11 @@ system_admin_tools(){
     # installing dbeaver-ce
     if [ "$GUI" -eq "1" ] ; then
       if [ "`dnf list --installed dbeaver-ce | grep -ic dbeaver-ce `" -lt "1" ] ; then
-        dnf install -y "$DBEAVER_URL"
+        dnf_pkg_func "$DBEAVER_URL"
       fi
     fi
     dnf_pkg_func ${ADMIN_TOOLS[@]} ${DOCKER[@]} ${KUBER[@]}
-    dnf_grp_func $DOCKER_GRP
+    dnf_grp_func ${SYSADMIN_GRP[@]}
 
     mkdir -p /etc/docker /usr/local/lib/docker/cli-plugins 
 
@@ -528,7 +531,6 @@ main(){
   check_args $@
   eula_agree
   save_run_vars >> "$LOGFILE"
-  echo 
     for STEP in $MAIN_STEPS ; do
       log " --------> Running : $STEP "
       echo -ne "${NORMAL}${MY_TUI2}"
